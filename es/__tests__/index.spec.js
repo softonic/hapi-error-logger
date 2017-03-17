@@ -1,18 +1,18 @@
 import hapi from 'hapi';
 import HapiErrorLogger from '../index';
 
-function createServerWithPlugin(options) {
+function createServerWithPlugin(pluginOptions, replyValue) {
   const server = new hapi.Server();
   server.connection();
   server.register({
     register: HapiErrorLogger,
-    options,
+    options: pluginOptions,
   });
   server.route({
     method: 'GET',
     path: '/path',
     handler: (request, reply) => (
-      reply(request.app.replyValue)
+      reply(replyValue)
     ),
   });
   return { server };
@@ -29,9 +29,10 @@ describe('HapiErrorLogger', () => {
       const logger = {
         error: jest.fn(),
       };
-      const { server } = createServerWithPlugin({ logger });
 
       const serverError = new Error('Server error');
+
+      const { server } = createServerWithPlugin({ logger }, serverError);
 
       await server.inject({
         method: 'GET',
@@ -39,9 +40,6 @@ describe('HapiErrorLogger', () => {
         headers: {
           host: 'example.com',
           'x-foo': 'bar',
-        },
-        app: {
-          replyValue: serverError,
         },
       });
 
@@ -61,6 +59,9 @@ describe('HapiErrorLogger', () => {
       const logger = {
         error: jest.fn(),
       };
+
+      const serverError = new Error('Server error');
+
       const { server } = createServerWithPlugin({
         logger,
         whitelistRequestHeaders: [
@@ -72,9 +73,7 @@ describe('HapiErrorLogger', () => {
           'content-type',
           'content-language',
         ],
-      });
-
-      const serverError = new Error('Server error');
+      }, serverError);
 
       await server.inject({
         method: 'GET',
@@ -84,9 +83,6 @@ describe('HapiErrorLogger', () => {
           host: 'example.com',
           accept: 'text/plain',
           'accept-language': 'es-ES',
-        },
-        app: {
-          replyValue: serverError,
         },
       });
 
@@ -108,6 +104,9 @@ describe('HapiErrorLogger', () => {
       const logger = {
         error: jest.fn(),
       };
+
+      const serverError = new Error('Server error');
+
       const { server } = createServerWithPlugin({
         logger,
         blacklistRequestHeaders: [
@@ -118,9 +117,7 @@ describe('HapiErrorLogger', () => {
           'content-type',
           'content-language',
         ],
-      });
-
-      const serverError = new Error('Server error');
+      }, serverError);
 
       await server.inject({
         method: 'GET',
@@ -130,9 +127,6 @@ describe('HapiErrorLogger', () => {
           host: 'example.com',
           accept: 'text/plain',
           'accept-language': 'es-ES',
-        },
-        app: {
-          replyValue: serverError,
         },
       });
 
