@@ -1,6 +1,6 @@
 # @softonic/hapi-error-logger
 
-Hapi plugin to log all requests and responses
+Hapi plugin to log errors on requests
 
 ## Installation
 
@@ -12,20 +12,18 @@ npm install @softonic/hapi-error-logger
 
 ```js
 // CommonJS
-// const HapiAccessLogger = require('@softonic/hapi-error-logger');
+// const HapiErrorLogger = require('@softonic/hapi-error-logger');
 
 // ES2015
-import HapiAccessLogger from '@softonic/hapi-error-logger';
+import HapiErrorLogger from '@softonic/hapi-error-logger';
 
 server.register({
-  register: HapiAccessLogger,
+  register: HapiErrorLogger,
   options: {
     logger: bunyan.createLogger({ name: "myapp" }),
     // whitelistHeaders and blacklistHeaders should not be used together
     whitelistRequestHeaders: [ 'host', 'accept', 'content-type'  ],
     blacklistRequestHeaders: [ 'authorization' ],
-    whitelistResponseHeaders: [ 'content-type' ],
-    blacklistResponseHeaders: [ 'set-cookie' ],
   }
 });
 ```
