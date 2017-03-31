@@ -148,7 +148,7 @@ describe('HapiErrorLogger', () => {
       expect(logEntry.request.headers['accept-language']).toBeUndefined();
     });
 
-    describe('when a filter is passed', () => {
+    describe('when an "isLoggableError" option is passed', () => {
       it('should log an error that passes the filter', async () => {
         const logger = {
           error: jest.fn(),
