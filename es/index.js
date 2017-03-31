@@ -15,7 +15,8 @@ import packageJSON from '../package.json';
  *   options: {
  *     logger: bunyan.createLogger({ name: 'error-log' }),
  *     whitelistRequestHeaders: [],
- *     blacklistRequestHeaders: []
+ *     blacklistRequestHeaders: [],
+ *     isLoggableError: error => error.output.statusCode >= 500
  *   }
  * }, (error) => {});
  *
@@ -30,6 +31,8 @@ const HapiErrorLogger = {
    * @param  {Logger}       options.logger
    * @param  {string[]}     [options.whitelistRequestHeaders]
    * @param  {string[]}     [options.blacklistRequestHeaders]
+   * @param  {Function}     [options.isLoggableError] Determines if an error should be logged.
+   *                                                  All errors are logged by default.
    * @param  {Function}     notifyRegistration
    */
   register(server, options, notifyRegistration) {
@@ -37,12 +40,13 @@ const HapiErrorLogger = {
       logger,
       whitelistRequestHeaders,
       blacklistRequestHeaders,
+      isLoggableError = () => true,
     } = options;
 
     server.ext('onPreResponse', (request, reply) => {
       const response = request.response;
 
-      if (response.isBoom) {
+      if (response.isBoom && isLoggableError(response)) {
         const { req } = request.raw;
         const receivedTime = new Date(request.info.received);
         const extendedReq = Object.assign({}, req, {
