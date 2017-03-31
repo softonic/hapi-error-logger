@@ -147,5 +147,61 @@ describe('HapiErrorLogger', () => {
       expect(logEntry.request.headers.accept).toBeUndefined();
       expect(logEntry.request.headers['accept-language']).toBeUndefined();
     });
+
+    describe('when a filter is passed', () => {
+      it('should log an error that passes the filter', async () => {
+        const logger = {
+          error: jest.fn(),
+        };
+
+        const serverError = new Error('Server error');
+        serverError.isLoggable = true;
+
+        const { server } = createServerWithPlugin({
+          logger,
+          isLoggableError: error => error.isLoggable === true,
+        }, serverError);
+
+        await server.inject({
+          method: 'GET',
+          url: '/path',
+          headers: {
+            'x-foo': 'bar',
+            host: 'example.com',
+            accept: 'text/plain',
+            'accept-language': 'es-ES',
+          },
+        });
+
+        expect(logger.error).toHaveBeenCalled();
+      });
+
+      it('should NOT log an error that does not pass the filter', async () => {
+        const logger = {
+          error: jest.fn(),
+        };
+
+        const serverError = new Error('Server error');
+        serverError.isLoggable = false;
+
+        const { server } = createServerWithPlugin({
+          logger,
+          isLoggableError: error => error.isLoggable === true,
+        }, serverError);
+
+        await server.inject({
+          method: 'GET',
+          url: '/path',
+          headers: {
+            'x-foo': 'bar',
+            host: 'example.com',
+            accept: 'text/plain',
+            'accept-language': 'es-ES',
+          },
+        });
+
+        expect(logger.error).not.toHaveBeenCalled();
+      });
+    });
   });
 });
