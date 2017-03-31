@@ -16,7 +16,7 @@ import packageJSON from '../package.json';
  *     logger: bunyan.createLogger({ name: 'error-log' }),
  *     whitelistRequestHeaders: [],
  *     blacklistRequestHeaders: [],
- *     isLoggableError: error => error.field === 'value'
+ *     isLoggableError: error => error.output.statusCode >= 500
  *   }
  * }, (error) => {});
  *
