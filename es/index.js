@@ -31,7 +31,8 @@ const HapiErrorLogger = {
    * @param  {Logger}       options.logger
    * @param  {string[]}     [options.whitelistRequestHeaders]
    * @param  {string[]}     [options.blacklistRequestHeaders]
-   * @param  {Function}     [options.isLoggableError] Determines if an error should be logged
+   * @param  {Function}     [options.isLoggableError] Determines if an error should be logged.
+   *                                                  All errors are logged by default.
    * @param  {Function}     notifyRegistration
    */
   register(server, options, notifyRegistration) {
