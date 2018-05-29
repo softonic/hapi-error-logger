@@ -1,8 +1,8 @@
 import hapi from 'hapi';
 import HapiErrorLogger from '../index';
 
-function createServerWithPlugin(pluginOptions, replyValue) {
-  const server = new hapi.Server();
+function createServerWithPlugin(pluginOptions, replyValue, stateValue) {
+  const server = new hapi.Server({ debug: false });
   server.connection();
   server.register({
     register: HapiErrorLogger,
@@ -11,9 +11,13 @@ function createServerWithPlugin(pluginOptions, replyValue) {
   server.route({
     method: 'GET',
     path: '/path',
-    handler: (request, reply) => (
-      reply(replyValue)
-    ),
+    handler: (request, reply) => {
+      const response = reply(replyValue);
+      if (stateValue) {
+        response.state('state', stateValue);
+      }
+      return response;
+    },
   });
   return { server };
 }
@@ -201,6 +205,36 @@ describe('HapiErrorLogger', () => {
         });
 
         expect(logger.error).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('when the server receives a "request-error" event', () => {
+      it('should log the error received with the event', async () => {
+        const logger = {
+          error: jest.fn(),
+        };
+
+        const { server } = createServerWithPlugin({ logger }, 'ok', {});
+
+        await server.inject({
+          method: 'GET',
+          url: '/path',
+          headers: {
+            host: 'example.com',
+            'x-foo': 'bar',
+          },
+        });
+
+        expect(logger.error).toHaveBeenCalledWith({
+          request: expect.objectContaining({
+            method: 'GET',
+            url: '/path',
+            headers: expect.objectContaining({
+              'x-foo': 'bar',
+            }),
+          }),
+          error: expect.stringMatching(/Invalid cookie value/),
+        }, 'GET example.com/path ERROR');
       });
     });
   });
