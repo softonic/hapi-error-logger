@@ -87,7 +87,7 @@ const HapiErrorLogger = {
           blacklistHeaders: blacklistRequestHeaders,
         });
 
-        const message = `${stringifyRequest(extendedReq)} ERROR`;
+        const message = `${stringifyRequest(extendedReq)} REQUEST ERROR`;
 
         logger.error({
           request: loggableRequest,

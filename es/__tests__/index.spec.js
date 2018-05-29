@@ -234,7 +234,7 @@ describe('HapiErrorLogger', () => {
             }),
           }),
           error: expect.stringMatching(/Invalid cookie value/),
-        }, 'GET example.com/path ERROR');
+        }, 'GET example.com/path REQUEST ERROR');
       });
     });
   });
