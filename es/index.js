@@ -5,6 +5,19 @@ import {
 import packageJSON from '../package.json';
 
 /**
+ * @param {hapi.Request} request
+ * @return {Object}
+ */
+function buildExtendedRequest(request) {
+  const { req } = request.raw;
+  const receivedTime = new Date(request.info.received);
+  const extendedReq = Object.assign({}, req, {
+    timestamp: receivedTime.toISOString(),
+  });
+  return extendedReq;
+}
+
+/**
  * Hapi plugin to log errors on requests
  *
  * @example
@@ -44,14 +57,10 @@ const HapiErrorLogger = {
     } = options;
 
     server.ext('onPreResponse', (request, reply) => {
-      const response = request.response;
+      const { response } = request;
 
       if (response.isBoom && isLoggableError(response)) {
-        const { req } = request.raw;
-        const receivedTime = new Date(request.info.received);
-        const extendedReq = Object.assign({}, req, {
-          timestamp: receivedTime.toISOString(),
-        });
+        const extendedReq = buildExtendedRequest(request);
 
         const loggableRequest = formatRequest(extendedReq, {
           whitelistHeaders: whitelistRequestHeaders,
@@ -67,6 +76,24 @@ const HapiErrorLogger = {
       }
 
       reply.continue();
+    });
+
+    server.on('request-error', (request, error) => {
+      if (isLoggableError(error)) {
+        const extendedReq = buildExtendedRequest(request);
+
+        const loggableRequest = formatRequest(extendedReq, {
+          whitelistHeaders: whitelistRequestHeaders,
+          blacklistHeaders: blacklistRequestHeaders,
+        });
+
+        const message = `${stringifyRequest(extendedReq)} REQUEST ERROR`;
+
+        logger.error({
+          request: loggableRequest,
+          error,
+        }, message);
+      }
     });
 
     notifyRegistration();
