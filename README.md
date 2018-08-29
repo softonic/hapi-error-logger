@@ -14,17 +14,17 @@ npm install @softonic/hapi-error-logger
 // CommonJS
 // const HapiErrorLogger = require('@softonic/hapi-error-logger');
 
-// ES2015
+// ES2016
 import HapiErrorLogger from '@softonic/hapi-error-logger';
 
-server.register({
-  register: HapiErrorLogger,
+await server.register({
+  plugin: HapiErrorLogger,
   options: {
-    logger: bunyan.createLogger({ name: "myapp" }),
+    logger: bunyan.createLogger({ name: 'error-log' }),
     // whitelistHeaders and blacklistHeaders should not be used together
-    whitelistRequestHeaders: [ 'host', 'accept', 'content-type'  ],
-    blacklistRequestHeaders: [ 'authorization' ],
-    isLoggableError: error => error.output.statusCode >= 500,
+    whitelistRequestHeaders: [],
+    blacklistRequestHeaders: [],
+    isLoggableError: error => error.output.statusCode >= 500
   }
 });
 ```
