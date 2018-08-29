@@ -3,20 +3,19 @@ import HapiErrorLogger from '../index';
 
 function createServerWithPlugin(pluginOptions, replyValue, stateValue) {
   const server = new hapi.Server({ debug: false });
-  server.connection();
+
   server.register({
-    register: HapiErrorLogger,
+    plugin: HapiErrorLogger,
     options: pluginOptions,
   });
   server.route({
     method: 'GET',
     path: '/path',
-    handler: (request, reply) => {
-      const response = reply(replyValue);
+    handler: (request, h) => {
       if (stateValue) {
-        response.state('state', stateValue);
+        h.state('state', stateValue);
       }
-      return response;
+      return replyValue;
     },
   });
   return { server };
@@ -25,7 +24,7 @@ function createServerWithPlugin(pluginOptions, replyValue, stateValue) {
 describe('HapiErrorLogger', () => {
   it('should be a Hapi plugin', () => {
     expect(HapiErrorLogger.register).toBeInstanceOf(Function);
-    expect(HapiErrorLogger.register.attributes.pkg.name).toBe('@softonic/hapi-error-logger');
+    expect(HapiErrorLogger.pkg.name).toBe('@softonic/hapi-error-logger');
   });
 
   describe('when it is registered', () => {
@@ -233,7 +232,9 @@ describe('HapiErrorLogger', () => {
               'x-foo': 'bar',
             }),
           }),
-          error: expect.stringMatching(/Invalid cookie value/),
+          error: expect.objectContaining({
+            message: expect.stringMatching(/Invalid cookie value/),
+          }),
         }, 'GET example.com/path REQUEST ERROR');
       });
     });
