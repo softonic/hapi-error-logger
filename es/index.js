@@ -23,20 +23,20 @@ function buildExtendedRequest(request) {
  * @example
  *
  * // Registration
- * server.register({
- *   register: HapiErrorLogger,
+ * await server.register({
+ *   plugin: HapiErrorLogger,
  *   options: {
  *     logger: bunyan.createLogger({ name: 'error-log' }),
  *     whitelistRequestHeaders: [],
  *     blacklistRequestHeaders: [],
  *     isLoggableError: error => error.output.statusCode >= 500
  *   }
- * }, (error) => {});
+ * });
  *
  * @type {Object}
  */
-const HapiErrorLogger = {
-
+export default{
+  pkg: packageJSON,
   /**
    * Registers the plugin in the Hapi server
    * @param  {hapi.Server}  server
@@ -46,9 +46,8 @@ const HapiErrorLogger = {
    * @param  {string[]}     [options.blacklistRequestHeaders]
    * @param  {Function}     [options.isLoggableError] Determines if an error should be logged.
    *                                                  All errors are logged by default.
-   * @param  {Function}     notifyRegistration
    */
-  register(server, options, notifyRegistration) {
+  register(server, options) {
     const {
       logger,
       whitelistRequestHeaders,
@@ -56,7 +55,7 @@ const HapiErrorLogger = {
       isLoggableError = () => true,
     } = options;
 
-    server.ext('onPreResponse', (request, reply) => {
+    server.ext('onPreResponse', (request, h) => {
       const { response } = request;
 
       if (response.isBoom && isLoggableError(response)) {
@@ -75,10 +74,11 @@ const HapiErrorLogger = {
         }, message);
       }
 
-      reply.continue();
+      return h.continue;
     });
 
-    server.on('request-error', (request, error) => {
+    server.events.on({ name: 'request', channels: 'error' }, (request, event) => {
+      const { error } = event;
       if (isLoggableError(error)) {
         const extendedReq = buildExtendedRequest(request);
 
@@ -95,14 +95,5 @@ const HapiErrorLogger = {
         }, message);
       }
     });
-
-    notifyRegistration();
   },
-
 };
-
-HapiErrorLogger.register.attributes = {
-  pkg: packageJSON,
-};
-
-export default HapiErrorLogger;
