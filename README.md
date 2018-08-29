@@ -20,10 +20,10 @@ import HapiErrorLogger from '@softonic/hapi-error-logger';
 await server.register({
   plugin: HapiErrorLogger,
   options: {
-    logger: bunyan.createLogger({ name: 'error-log' }),
+    logger: bunyan.createLogger({ name: 'myapp' }),
     // whitelistHeaders and blacklistHeaders should not be used together
-    whitelistRequestHeaders: [],
-    blacklistRequestHeaders: [],
+    whitelistRequestHeaders: ['host', 'accept', 'content-type'],
+    blacklistRequestHeaders: ['authorization'],
     isLoggableError: error => error.output.statusCode >= 500
   }
 });
