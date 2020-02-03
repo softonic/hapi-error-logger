@@ -1,4 +1,4 @@
-import hapi from 'hapi';
+import hapi from '@hapi/hapi';
 import HapiErrorLogger from '../index';
 
 function createServerWithPlugin(pluginOptions, replyValue, stateValue) {
@@ -151,7 +151,7 @@ describe('HapiErrorLogger', () => {
       expect(logEntry.request.headers['accept-language']).toBeUndefined();
     });
 
-    describe('when an "isLoggableError" option is passed', () => {
+    describe('when an "isLoggableRequestError" option is passed', () => {
       it('should log an error that passes the filter', async () => {
         const logger = {
           error: jest.fn(),
@@ -162,7 +162,7 @@ describe('HapiErrorLogger', () => {
 
         const { server } = createServerWithPlugin({
           logger,
-          isLoggableError: error => error.isLoggable === true,
+          isLoggableRequestError: (error) => error.isLoggable === true,
         }, serverError);
 
         await server.inject({
@@ -189,7 +189,7 @@ describe('HapiErrorLogger', () => {
 
         const { server } = createServerWithPlugin({
           logger,
-          isLoggableError: error => error.isLoggable === true,
+          isLoggableRequestError: (error) => error.isLoggable === true,
         }, serverError);
 
         await server.inject({
