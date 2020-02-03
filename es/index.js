@@ -11,9 +11,10 @@ import packageJSON from '../package.json';
 function buildExtendedRequest(request) {
   const { req } = request.raw;
   const receivedTime = new Date(request.info.received);
-  const extendedReq = Object.assign({}, req, {
+  const extendedReq = {
+    ...req,
     timestamp: receivedTime.toISOString(),
-  });
+  };
   return extendedReq;
 }
 
@@ -35,16 +36,17 @@ function buildExtendedRequest(request) {
  *
  * @type {Object}
  */
-export default{
+export default {
   pkg: packageJSON,
+
   /**
    * Registers the plugin in the Hapi server
-   * @param  {hapi.Server}  server
-   * @param  {Object}       options
-   * @param  {Logger}       options.logger
-   * @param  {string[]}     [options.whitelistRequestHeaders]
-   * @param  {string[]}     [options.blacklistRequestHeaders]
-   * @param  {Function}     [options.isLoggableError] Determines if an error should be logged.
+   * @param {hapi.Server} server
+   * @param {Object} options
+   * @param {Logger} options.logger
+   * @param {string[]} [options.whitelistRequestHeaders]
+   * @param {string[]} [options.blacklistRequestHeaders]
+   * @param {Function} [options.isLoggableRequestError] Determines if an error should be logged
    *                                                  All errors are logged by default.
    */
   register(server, options) {
@@ -52,13 +54,13 @@ export default{
       logger,
       whitelistRequestHeaders,
       blacklistRequestHeaders,
-      isLoggableError = () => true,
+      isLoggableRequestError = () => true,
     } = options;
 
     server.ext('onPreResponse', (request, h) => {
       const { response } = request;
 
-      if (response.isBoom && isLoggableError(response)) {
+      if (response.isBoom && isLoggableRequestError(response)) {
         const extendedReq = buildExtendedRequest(request);
 
         const loggableRequest = formatRequest(extendedReq, {
@@ -77,9 +79,22 @@ export default{
       return h.continue;
     });
 
+    server.events.on('log', (event, tags) => {
+      const { channel, error } = event;
+
+      if (tags.error) {
+        logger.error({
+          logChannel: channel,
+          logTags: tags,
+          error,
+        }, 'Server error!');
+      }
+    });
+
     server.events.on({ name: 'request', channels: 'error' }, (request, event) => {
       const { error } = event;
-      if (isLoggableError(error)) {
+
+      if (isLoggableRequestError(error)) {
         const extendedReq = buildExtendedRequest(request);
 
         const loggableRequest = formatRequest(extendedReq, {

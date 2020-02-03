@@ -1,4 +1,5 @@
 node_modules
 npm-debug.log
+pachage-lock.json
 docs
 lib
