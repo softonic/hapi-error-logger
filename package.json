@@ -1,6 +1,6 @@
 {
   "name": "@softonic/hapi-error-logger",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "author": "Rubén Norte <ruben.norte@softonic.com>",
   "description": "Hapi plugin to log errors on requests",
   "keywords": [
