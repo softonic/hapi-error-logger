@@ -24,7 +24,7 @@ await server.register({
     // whitelistHeaders and blacklistHeaders should not be used together
     whitelistRequestHeaders: ['host', 'accept', 'content-type'],
     blacklistRequestHeaders: ['authorization'],
-    isLoggableError: error => error.output.statusCode >= 500
+    isLoggableRequestError: error => error.output.statusCode >= 500
   }
 });
 ```
