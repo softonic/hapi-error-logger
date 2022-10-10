@@ -13,6 +13,7 @@ function buildExtendedRequest(request) {
   const receivedTime = new Date(request.info.received);
   const extendedReq = {
     ...req,
+    headers: req.headers,
     timestamp: receivedTime.toISOString(),
   };
   return extendedReq;
