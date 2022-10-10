@@ -1,6 +1,6 @@
 {
   "name": "@softonic/hapi-error-logger",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "author": "Rubén Norte <ruben.norte@softonic.com>",
   "description": "Hapi plugin to log errors on requests",
   "keywords": [
@@ -32,10 +32,10 @@
     "push": "git push origin master && git push origin --tags"
   },
   "engines": {
-    "node": ">=12.14.1"
+    "node": ">=16.15"
   },
   "peerDependencies": {
-    "@hapi/hapi": "19.x.x"
+    "@hapi/hapi": "20.x.x"
   },
   "dependencies": {
     "@softonic/http-log-format": "^2.0.0"
@@ -44,7 +44,7 @@
     "@babel/cli": "^7.8.4",
     "@babel/preset-env": "^7.8.4",
     "@babel/register": "^7.8.3",
-    "@hapi/hapi": "^19.0.5",
+    "@hapi/hapi": "^20.2.2",
     "babel-eslint": "^10.0.3",
     "eslint": "^6.8.0",
     "eslint-config-airbnb-base": "^14.0.0",
